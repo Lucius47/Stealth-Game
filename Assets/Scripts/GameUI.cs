@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameUI : MonoBehaviour {
@@ -35,7 +33,7 @@ public class GameUI : MonoBehaviour {
 		gameOverUI.SetActive (true);
 		gameIsOver = true;
 		Guard.OnGuardHasSpottedPlayer -= ShowGameLoseUI;
-		FindObjectOfType <Player> ().OnReachedFinish -= ShowGameWinUI;
+		FindObjectOfType<Player>().OnReachedFinish -= ShowGameWinUI;
 
 
 

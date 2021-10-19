@@ -1,65 +1,71 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Player : MonoBehaviour {
 
 	public event System.Action OnReachedFinish;
 
-	public float moveSpeed = 7;
-	public float smoothMoveTime = 0.1f;
-	public float turnSpeed = 8;
+	[SerializeField] float moveSpeed = 7;
+	[SerializeField] float smoothMoveTime = 0.1f;
+	[SerializeField] float turnSpeed = 8;
 
 	float angle;
 	float smoothInputMagnitude;
 	float smoothMoveVelocity;
 	bool disabled;
 
-	Rigidbody rigidbody;
+	Rigidbody rb;
 	Vector3 velocity;
 
 
 
 	void Start () {
-		rigidbody = GetComponent<Rigidbody> ();
-		Guard.OnGuardHasSpottedPlayer += Disable;
+		rb = GetComponent<Rigidbody> ();
+		Guard.OnGuardHasSpottedPlayer += DisablePlayer;
 
 
 	}
 
 	void Update () {
 		Vector3 inputDirection = Vector3.zero;
-		if (!disabled) {
+		if (!disabled)
+		{
 			inputDirection = new Vector3 (Input.GetAxisRaw ("Horizontal"), 0, Input.GetAxisRaw ("Vertical")).normalized;
 		}
 		float inputMagnitude = inputDirection.magnitude;
+		
+		
+		//Mathf.SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime, float maxSpeed, float deltaTime)
 		smoothInputMagnitude = Mathf.SmoothDamp (smoothInputMagnitude, inputMagnitude, ref smoothMoveVelocity, smoothMoveTime);
-		float targetAngle = Mathf.Atan2 (inputDirection.x, inputDirection.z) * Mathf.Rad2Deg;
-		angle = Mathf.LerpAngle (angle, targetAngle, turnSpeed * Time.deltaTime * inputMagnitude);
 		velocity = transform.forward * moveSpeed * smoothInputMagnitude;
+
+		float targetAngle = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg;
+		angle = Mathf.LerpAngle(angle, targetAngle, turnSpeed * Time.deltaTime * inputMagnitude);
 	}
 
-	void OnTriggerEnter (Collider hitCollider) {
-		if (hitCollider.tag == "Finish") {
-			Disable ();
-			if (OnReachedFinish != null) {
-				OnReachedFinish ();
-			}
+	void OnTriggerEnter (Collider col)
+	{
+		if (col.tag == "Finish")
+		{
+			DisablePlayer ();
+			OnReachedFinish?.Invoke();
 		}
 	}
 
-	void Disable () {
+	void DisablePlayer ()
+	{
 		disabled = true;
 	}
 
-	void FixedUpdate () {
-		rigidbody.MoveRotation (Quaternion.Euler (Vector3.up * angle));
-		rigidbody.MovePosition (rigidbody.position + velocity * Time.deltaTime);
+	void FixedUpdate ()
+	{
+		rb.MoveRotation (Quaternion.Euler (Vector3.up * angle));
+		rb.MovePosition (rb.position + velocity * Time.deltaTime);
 	}
 
 
-	void OnDestroy () {
-		Guard.OnGuardHasSpottedPlayer -= Disable;
+	void OnDestroy ()
+	{
+		Guard.OnGuardHasSpottedPlayer -= DisablePlayer;
 	}
 
 

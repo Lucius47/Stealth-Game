@@ -1,19 +1,18 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Guard : MonoBehaviour {
 
 	public static event System.Action OnGuardHasSpottedPlayer;
 
-	public Transform pathHolder;
-	public LayerMask viewMask;
-	public Light spotLight;
-	public float speed = 5;
-	public float waitTime = 0.3f;
-	public float turnSpeed = 90;
-	public float viewDistance;
-	public float timeToSpot = 0.5f;
+	[SerializeField] Transform pathHolder;
+	[SerializeField] LayerMask viewMask;
+	[SerializeField] Light spotLight;
+	[SerializeField] float speed = 5;
+	[SerializeField] float waitTime = 0.3f;
+	[SerializeField] float turnSpeed = 90;
+	[SerializeField] float viewDistance = 10;
+	[SerializeField] float timeToSpot = 0.5f;
 
 	float viewAngle;
 	float playerVisibleTimer;
@@ -29,10 +28,10 @@ public class Guard : MonoBehaviour {
 		Vector3[] waypoints = new Vector3 [pathHolder.childCount];
 		for (int i = 0; i < waypoints.Length; i++) {
 			waypoints[i] = pathHolder.GetChild(i).position;
-			waypoints [i] = new Vector3 (waypoints [i].x, transform.position.y, waypoints[i].z);
+			waypoints[i] = new Vector3 (waypoints[i].x, transform.position.y, waypoints[i].z);
 		}
 
-		StartCoroutine (FollowPath (waypoints));
+		StartCoroutine(FollowPath(waypoints));
 
 	}
 
@@ -67,16 +66,16 @@ public class Guard : MonoBehaviour {
 	}
 
 	IEnumerator FollowPath (Vector3[] waypoints) {
-		transform.position = waypoints [0];
+		transform.position = waypoints[0];
 		int targetWaypointIndex = 1;
-		Vector3 targetWaypoint = waypoints [targetWaypointIndex];
+		Vector3 targetWaypoint = waypoints[targetWaypointIndex];
 		transform.LookAt (targetWaypoint);
 
 		while (true) {
 			transform.position = Vector3.MoveTowards (transform.position, targetWaypoint, speed * Time.deltaTime);
 			if (transform.position == targetWaypoint) {
 				targetWaypointIndex = (targetWaypointIndex + 1) % waypoints.Length;
-				targetWaypoint = waypoints [targetWaypointIndex];
+				targetWaypoint = waypoints[targetWaypointIndex];
 				yield return new WaitForSeconds (waitTime);
 				yield return StartCoroutine (TurnToFace (targetWaypoint));
 			}
